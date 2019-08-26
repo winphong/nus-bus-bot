@@ -20,5 +20,12 @@ while True:
             except: 
                 message = None
             from_ = item["message"]["from"]["id"]
-            reply = bot.get_closest()
+            
+            if ("/" not in message):
+                reply = "Please provide a valid command!"
+            elif (message == "/closest"):
+                reply = bot.get_closest()
+            else:
+                reply = bot.get_buses(message[1:].upper())
+
             bot.send_message(reply, from_)

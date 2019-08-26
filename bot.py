@@ -84,3 +84,32 @@ class telegram_chatbot():
                     museumBus += '{} - {}\n'.format(bus['name'], arrivalTime)
 
         return '''YIH\n{}\nMuseum\n{}\n'''.format(yihBus, museumBus)
+
+
+    def get_buses(self, busStop):
+        
+        response = ""
+        busStopName = ""
+
+        if busStop == "KRMRT":
+            busStopName = "KR-MRT"
+            response += "Kent Ridge MRT\n"
+        elif busStop == "UHC":
+            busStopName = "STAFFCLUB"
+            response += "UHC\n"
+        else:
+            busStopName = busStop
+            response += busStopName + "\n"
+        
+        jsonData = json.loads(ET.fromstring(requests.get(self.getUrl(busStopName)).text).text)
+
+        for bus in jsonData['ShuttleServiceResult']['shuttles']:                
+            if (bus['arrivalTime'] != '-'):
+                response += '{} - {}\n'.format(bus['name'], bus['arrivalTime'])
+
+        response += "\n"
+
+        return response
+
+    def getUrl(self, busStop):
+        return "https://nextbus.comfortdelgro.com.sg/testMethod.asmx/GetShuttleService?busstopname={}".format(busStop)
