@@ -3,11 +3,6 @@ import xml.etree.ElementTree as ET
 from bot import telegram_chatbot
 bot = telegram_chatbot("config.cfg")
 
-def make_reply(msg):
-    reply = "okay"
-    return reply
-
-
 update_id = None
 while True:
     updates = bot.get_updates(offset=update_id)
@@ -22,10 +17,15 @@ while True:
             from_ = item["message"]["from"]["id"]
             
             try :
-                if ("/" not in message):
+                if (message == "/start"):
+                    reply = '''Welcome to NUS Bus!\nPlease enter a valid command to retrieve the timing of bus at the specified bus stop e.g. /yih'''
+                elif ("/" not in message or len(message) == 1):
                     reply = "Please provide a valid command!"
-                elif (message == "/closest"):
-                    reply = bot.get_closest()
+                elif (message == "/help"):
+                    reply = '''Please enter a valid command to retrieve the timing of bus at the specified bus stop e.g. /yih\n
+                    More bus stops will be supported soon!'''
+                elif (message == "/rhtobiz"):
+                    reply = bot.get_rh_to_biz()
                 else:
                     reply = bot.get_buses(message[1:].upper())
             except: 

@@ -26,9 +26,9 @@ class telegram_chatbot():
         parser.read(config)
         return parser.get('creds', 'token')
 
-    def get_closest(self):
-        yih = requests.get("https://nextbus.comfortdelgro.com.sg/testMethod.asmx/GetShuttleService?busstopname=YIH")
-        museum = requests.get("https://nextbus.comfortdelgro.com.sg/testMethod.asmx/GetShuttleService?busstopname=MUSEUM")
+    def get_rh_to_biz(self):
+        yih = requests.get(self.getUrl("YIH"))
+        museum = requests.get(self.getUrl("MUSEUM"))
 
         yih = json.loads((ET.fromstring(yih.text)).text)
         museum = json.loads((ET.fromstring(museum.text)).text)
@@ -38,49 +38,15 @@ class telegram_chatbot():
         museum = museum['ShuttleServiceResult']['shuttles']
         museumBus = ''
 
-        # closestBusStop = ''
-        
-        try:
-            minArrivalTime = int(yih[0]['arrivalTime']) 
-        except:
-            if (yih[0]['arrivalTime'] == 'Arr'):
-                minArrivalTime = 0
-            else:
-                minArrivalTime = '-'
-
         for bus in yih:
-            
-            if ( minArrivalTime != '-' and bus['arrivalTime'] != '-' ):
-
-                if (bus['arrivalTime'] == 'Arr'):
-                    arrivalTime = 0
-                else:
-                    arrivalTime = int(bus['arrivalTime'])
-
-                if (arrivalTime <= minArrivalTime):
-                    minArrivalTime = arrivalTime
-                    # closestBusStop += '{} - {}\n'.format(
-                    #     bus['name'], bus['arrivalTime']
-                    # )
-                
+            arrivalTime = bus['arrivalTime']
+            if (arrivalTime != '-'):
                 yihBus += '{} - {}\n'.format(bus['name'], arrivalTime)
 
         for bus in museum:
-
+            arrivalTime = bus['arrivalTime']
             if (bus['name'] == 'D1' or bus['name'] == 'BTC1'):
-                if ( minArrivalTime != '-' and bus['arrivalTime'] != '-' ):
-
-                    if (bus['arrivalTime'] == 'Arr'):
-                        arrivalTime = 0
-                    else:
-                        arrivalTime = int(bus['arrivalTime'])
-
-                    if (arrivalTime < minArrivalTime):
-                        minArrivalTime = arrivalTime
-                        # closestBusStop += '{} - {}\n'.format(
-                        #     bus['name'], bus['arrivalTime']
-                        # )
-
+                if (bus['arrivalTime'] != '-' ):
                     museumBus += '{} - {}\n'.format(bus['name'], arrivalTime)
 
         return '''YIH\n{}\nMuseum\n{}\n'''.format(yihBus, museumBus)
