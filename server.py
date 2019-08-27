@@ -22,8 +22,7 @@ while True:
                 elif ("/" not in message or len(message) == 1):
                     reply = "Please provide a valid command!"
                 elif (message == "/help"):
-                    reply = '''Please enter a valid command to retrieve the timing of bus at the specified bus stop e.g. /yih\n
-                    More bus stops will be supported soon!'''
+                    reply = '''Please enter a valid command to retrieve the timing of bus at the specified bus stop e.g. /yih\nMore bus stops will be supported soon!'''
                 elif (message == "/rhtobiz"):
                     reply = bot.get_rh_to_biz()
                 else:
