@@ -1,4 +1,5 @@
 import json
+import requests
 import xml.etree.ElementTree as ET
 from bot import telegram_chatbot
 bot = telegram_chatbot("config.cfg")
@@ -22,12 +23,14 @@ while True:
                 elif ("/" not in message or len(message) == 1):
                     reply = "Please provide a valid command!"
                 elif (message == "/help"):
-                    reply = '''Please enter a valid command to retrieve the timing of bus at the specified bus stop e.g. /yih\nMore bus stops will be supported soon!'''
+                    reply = '''Please enter a valid command to retrieve the timing of bus at the specified bus stop e.g. /yih\n\nMore bus stops will be supported soon!'''
                 elif (message == "/rhtobiz"):
                     reply = bot.get_rh_to_biz()
                 else:
                     reply = bot.get_buses(message[1:].upper())
-            except: 
+            except requests.exceptions.RequestException: 
+                reply = "It appears that the server is not responding. Please try again later.\n\nSorry for the inconvenience caused!"
+            except:
                 reply = "Please provide a valid command!"
 
             bot.send_message(reply, from_)

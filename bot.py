@@ -27,8 +27,8 @@ class telegram_chatbot():
         return parser.get('creds', 'token')
 
     def get_rh_to_biz(self):
-        yih = requests.get(self.getUrl("YIH"))
-        museum = requests.get(self.getUrl("MUSEUM"))
+        yih = requests.get(self.getUrl("YIH"), timeout=10)
+        museum = requests.get(self.getUrl("MUSEUM"), timeout=10)
 
         yih = json.loads((ET.fromstring(yih.text)).text)
         museum = json.loads((ET.fromstring(museum.text)).text)
@@ -67,7 +67,7 @@ class telegram_chatbot():
             busStopName = busStop
             response += busStopName + "\n"
         
-        jsonData = json.loads(ET.fromstring(requests.get(self.getUrl(busStopName)).text).text)
+        jsonData = json.loads(ET.fromstring(requests.get(self.getUrl(busStopName), timeout=10).text).text)
 
         for bus in jsonData['ShuttleServiceResult']['shuttles']:                
             if (bus['arrivalTime'] != '-'):
