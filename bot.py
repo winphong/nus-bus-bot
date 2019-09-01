@@ -26,6 +26,31 @@ class telegram_chatbot():
         parser.read(config)
         return parser.get('creds', 'token')
 
+    def get_buses(self, busStop):
+        
+        response = ""
+        busStopName = ""
+
+        if busStop == "KRMRT":
+            busStopName = "KR-MRT"
+            response += "Kent Ridge MRT\n"
+        elif busStop == "UHC":
+            busStopName = "STAFFCLUB"
+            response += "UHC\n"
+        else:
+            busStopName = busStop
+            response += busStopName + "\n"
+        
+        jsonData = json.loads(ET.fromstring(requests.get(self.getUrl(busStopName), timeout=10).text).text)
+
+        for bus in jsonData['ShuttleServiceResult']['shuttles']:                
+            if (bus['arrivalTime'] != '-'):
+                response += '{} - {}\n'.format(bus['name'], bus['arrivalTime'])
+
+        response += "\n"
+
+        return response
+
     def get_rh_to_biz(self):
         yih = requests.get(self.getUrl("YIH"), timeout=10)
         museum = requests.get(self.getUrl("MUSEUM"), timeout=10)
@@ -51,31 +76,44 @@ class telegram_chatbot():
 
         return '''YIH\n{}\nMuseum\n{}\n'''.format(yihBus, museumBus)
 
+    def get_rh_to_sci(self):
+        oppYih = requests.get(self.getUrl("YIH-OPP"), timeout=10)
+        museum = requests.get(self.getUrl("MUSEUM"), timeout=10)
+        uhc=requests.get(self.getUrl("STAFFCLUB"), timeout=10)
 
-    def get_buses(self, busStop):
+        oppYih = json.loads((ET.fromstring(oppYih.text)).text)
+        museum = json.loads((ET.fromstring(museum.text)).text)
+        uhc = json.loads((ET.fromstring(uhc.text)).text)
+
+        oppYih = oppYih['ShuttleServiceResult']['shuttles']
+        museum = museum['ShuttleServiceResult']['shuttles']
+        uhc = uhc['ShuttleServiceResult']['shuttles']
+
+        oppYihBus = ''
+        museumBus = ''
+        uhcBus = ''
+
+        for bus in oppYih:
+            arrivalTime = bus['arrivalTime']
+            name = bus['name']
+            if (name == 'A2'):
+                if (arrivalTime != '-'):
+                    oppYihBus += '{} - {}\n'.format(bus['name'], arrivalTime)
         
-        response = ""
-        busStopName = ""
+        for bus in uhc:
+            arrivalTime = bus['arrivalTime']
+            if (arrivalTime != '-'):
+                uhcBus += '{} - {}\n'.format(bus['name'], arrivalTime)
 
-        if busStop == "KRMRT":
-            busStopName = "KR-MRT"
-            response += "Kent Ridge MRT\n"
-        elif busStop == "UHC":
-            busStopName = "STAFFCLUB"
-            response += "UHC\n"
-        else:
-            busStopName = busStop
-            response += busStopName + "\n"
-        
-        jsonData = json.loads(ET.fromstring(requests.get(self.getUrl(busStopName), timeout=10).text).text)
+        for bus in museum:
+            arrivalTime = bus['arrivalTime']
+            name = bus['name']
+            if (name == 'A2' or name == 'D2' or name == 'C'):
+                if (bus['arrivalTime'] != '-' ):
+                    museumBus += '{} - {}\n'.format(bus['name'], arrivalTime)
 
-        for bus in jsonData['ShuttleServiceResult']['shuttles']:                
-            if (bus['arrivalTime'] != '-'):
-                response += '{} - {}\n'.format(bus['name'], bus['arrivalTime'])
+        return '''Museum\n{}\nUHC\n{}\nOPP YIH\n{}\n'''.format(museumBus, uhcBus, oppYihBus)
 
-        response += "\n"
-
-        return response
 
     def getUrl(self, busStop):
         return "https://nextbus.comfortdelgro.com.sg/testMethod.asmx/GetShuttleService?busstopname={}".format(busStop)
