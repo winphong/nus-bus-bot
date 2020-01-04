@@ -2,7 +2,7 @@ import json
 import requests
 import xml.etree.ElementTree as ET
 from bot import telegram_chatbot
-bot = telegram_chatbot("config.cfg")
+bot = telegram_chatbot("config.local")
 
 update_id = None
 while True:
