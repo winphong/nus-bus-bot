@@ -1,12 +1,13 @@
 import requests
 import json
-import configparser as cfg
+# import configparser as cfg
 import xml.etree.ElementTree as ET
+import os
 
 
 class telegram_chatbot():
-    def __init__(self, config):
-        self.token = self.read_token_from_config_file(config)
+    def __init__(self):
+        self.token = self.read_token_from_env()
         self.base = "https://api.telegram.org/bot{}/".format(self.token)
 
     def get_updates(self, offset=None):
@@ -21,10 +22,10 @@ class telegram_chatbot():
         if msg is not None:
             requests.get(url) # ping telegram api to send message
 
-    def read_token_from_config_file(self, config):
-        parser = cfg.ConfigParser()
-        parser.read(config)
-        return parser.get('creds', 'token')
+    def read_token_from_env(self):
+        # parser = cfg.ConfigParser()
+        # parser.read(config)
+        return os.environ['token']
 
     def get_buses(self, busStop):
         
